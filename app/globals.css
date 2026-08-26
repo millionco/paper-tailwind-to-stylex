@@ -1,0 +1,1568 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  /* Declared: the primary, monochrome — three stops of the neutral ladder:
+
+         --primary        0.205   the fill
+         --primary-hover  0.269   the hover stop, one step toward the pointer
+         --primary-edge   0.205   the checked ring at the fill's own value:
+                                   the wash existed for the blue's chroma,
+                                   and a grey halo on ink is only a smudge
+
+       0.205 is base-lyra's own monochrome, which a blue accent replaced on
+       2026-08-18 and Ben revoked on 2026-08-22: "remove the blue primary
+       color completely … i don't like it anywhere." What was a default is now
+       the decision. --primary still reaches every control that tints: a
+       checked box or radio, a switch, a slider, a progress fill, an avatar
+       badge, a link.
+
+       --primary-foreground stays at 0.985 — the token every tinted control
+       pairs with. --primary-highlight is gone with --shadow-primary, its one
+       consumer: the primary is solid ink and draws no inset highlights.
+       Values sit on the ladder the neutrals already use; where one coincides
+       with another token they stay declared apart. */
+  --primary: oklch(0.205 0 0);
+  --primary-hover: oklch(0.269 0 0);
+  --primary-edge: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  /* Declared: the colour of a 0.5px edge, which in light is --input exactly and
+       is named anyway.
+       It is named because dark needs the two apart. --input is read as a fill
+       as well as an edge — `bg-input/30` on every control, `bg-input-disabled`,
+       the small control's ring — so taking the edge down through it in dark
+       would have thinned every one of those fills as a side effect. That is the
+       coupling the --input-focus note already warns about from the other
+       direction. One token for the line, one for the surface. */
+  --hairline: var(--input);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  /* Declared: the colour of a field label. Kept in display-p3 as specified;
+       the equivalent is oklch(0.509 0 0), which reads as one step lighter than
+       --foreground (0.145) and one step darker than --muted-foreground (0.556). */
+  --label-foreground: color(display-p3 0.398 0.398 0.398);
+  /* Declared: the fill and text of a disabled control. Kept in display-p3 as
+       specified; the equivalents are oklch(0.981 0 0) and oklch(0.735 0 0).
+       These replace a `bg-input/50 opacity-50` pair, and the mechanism is the
+       point. `opacity` fades the whole control — including the 0.5px hairline
+       --shadow-control exists to draw — so a disabled field lost the edge that
+       makes it read as a control at all. Naming the fill and the text leaves the
+       hairline at full strength, which is what the design shows.
+       The hairline itself needs no token: the specified
+       color(display-p3 0.831 0.831 0.831 / 67%) is --shadow-control already. The
+       0.5px spread paints outside the border box, so it composites over the page
+       rather than this fill — oklch 0.9168 against --input's 0.9220, a delta of
+       0.005. That measurement is docs/adr/0002-control-surface.md's. */
+  --input-disabled: color(display-p3 0.975 0.975 0.975);
+  --input-disabled-foreground: color(display-p3 0.663 0.663 0.663);
+  /* Declared: the edge of a control too small for --input to register on.
+       Kept in display-p3 as specified; the equivalent is oklch(0.834 0 0),
+       0.088 darker than --input's 0.922 — twenty times the delta this
+       repository has twice called imperceptible, so it is a statement rather
+       than drift.
+       What it states is that --input was calibrated against a 32px field. On a
+       14px box the same grey is 1.24:1 against white where this is 1.67:1, and
+       a 0.5px spread of it is finer than the box deserves. The four controls in
+       that size class — checkbox, radio, switch, toggle — all want this one. */
+  --input-small: color(display-p3 0.786 0.786 0.786);
+  /* The control's own hairline while it holds focus. --input is 0.922 against a
+       1.0 page, a delta of 0.078; this is 0.806, which is 0.194 — the same edge,
+       about two and a half times as present. Mixed toward --foreground rather
+       than written flat, so the expression says *more present* and means it in
+       either scheme. */
+  --input-focus: color-mix(in oklab, var(--input) 85%, var(--foreground));
+  /* Declared: the glyph on a keycap. Kept in display-p3 as specified; the
+       equivalent is oklch(0.628 0 0). It needs naming because it is neither of
+       the two greys it sits between — lighter than --muted-foreground (0.556)
+       and darker than --input-disabled-foreground (0.735) — so a keycap that
+       borrowed either would be visibly off the design.
+       The keycap's edge needs no token of its own: it is --input, on the
+       measurement in the --input-disabled note above.
+       The design specifies light only. .dark takes oklch(0.708 0 0), which is
+       what --label-foreground does there rather than a fresh derivation. */
+  --kbd-foreground: color(display-p3 0.535 0.535 0.535);
+  /* Declared: a button under the pointer. Kept in display-p3 as specified; the
+       equivalents are oklch(0.992 0 0) and oklch(0.372 0 0).
+       Both replace tokens that were a step too strong. The fill was --muted at
+       0.970 against a 1.0 rest, a delta of 0.030; this is 0.008, which is about
+       a quarter of the move.
+       The text goes the other way and is the part worth reading twice: it
+       *lightens* on hover, 0.145 to 0.372, where the old rule took it to
+       --foreground and left it. A button that softens under the pointer rather
+       than sharpening is deliberate here, but it is the opposite of the usual
+       direction, so it will look like a mistake to anyone who did not choose it.
+       Neither has a .dark counterpart in the design. The fill takes
+       oklch(1 0 0 / 7.5%), which is exactly the `bg-input/50` it replaces there —
+       --input is oklch(1 0 0 / 15%) under .dark, and half of that is this. The
+       text takes the established secondary step, as --label-foreground does. */
+  --button-hover: color(display-p3 0.99 0.99 0.99);
+  --button-hover-foreground: color(display-p3 0.251 0.251 0.251);
+  /* Declared: the segmented tab strip. Kept in display-p3 as specified; the
+       equivalents are oklch 0.957, 0.990, 0.885 and 0.792.
+
+       The track is its own value and not --muted (0.970) despite being 0.013
+       from it. In isolation that would be arguable; here the whole effect is the
+       gap between track and chip, and 0.957 against 0.990 is 0.033 — borrowing
+       --muted would halve it and put the entire error on the one relationship
+       that carries the design. Redefining --muted was never available at twelve
+       consumers, and a segmented track is not a muted surface anyway.
+
+       The chip sits 0.002 from --button-hover, which is inside what this
+       repository treats as imperceptible, and is still declared separately. That
+       cuts against the line ADR 0002 draws, so the distinction matters: the ADR
+       refuses a *second definition of one colour*, which is what --primary-edge
+       is across a hairline and selected text. These two are different colours
+       that coincide today — a button's transient hover and a chip's resting
+       surface — and sharing would mean nudging one silently moves the other.
+
+       The active label is not here. The design gives it as
+       color(display-p3 0.398 0.398 0.398), which is --label-foreground exactly,
+       so the tab names that token instead.
+
+       Both label colours are lighter than what they replace: today's active is
+       oklch 0.145 and its inactive 0.531, so the strip steps back about a level
+       and the two close from 0.386 apart to 0.284. The inactive label lands at
+       1.70:1 against the track, well under the 4.5:1 WCAG asks of text this
+       size. That is the design as specified and it is a board, but it is a
+       measurement rather than a taste, and it should not survive to anywhere
+       real unexamined. The active label is fine at 5.62:1 against its chip. */
+  --tab-track: color(display-p3 0.944 0.944 0.944);
+  --tab-indicator: color(display-p3 0.987 0.987 0.987);
+  --tab-foreground: color(display-p3 0.733 0.733 0.733);
+  /* Declared: the two edges of a raised chip, shared. Kept in display-p3 as
+       specified; the equivalents are oklch(0.882 0 0) and white.
+
+       Not named after a component, because two now draw the same object. The
+       badge's design states its hairline as color(display-p3 0.851 0.851 0.851)
+       and its lit edges as pure white — the selected tab's values exactly, to
+       the digit — so what is being named is the chip rather than the tab that
+       needed it first. They arrived as --tab-indicator-edge and
+       --tab-indicator-highlight, which was true only while there was one
+       consumer, the same way --breadcrumb-separator was.
+
+       Only the fills differ, and they stay apart: --tab-indicator is 0.990 and
+       --badge-surface 0.984. That is 0.006, about where this file draws
+       imperceptible, and declaring them separately is the line the note above
+       already takes against --button-hover — two different colours that coincide
+       today, not one colour written twice. A chip's edges are the other case:
+       one colour, one definition. */
+  --chip-edge: color(display-p3 0.851 0.851 0.851);
+  --chip-highlight: oklch(1 0 0);
+  /* Declared: a badge's surface. Kept in display-p3 as specified; the
+       equivalent is oklch(0.984 0 0).
+
+       It sits 0.006 under the tab chip it shares its edges with, and 0.008 under
+       --button-hover. Three greys inside 0.008 of each other looks like a mistake
+       until you note what each is doing: a button's transient hover, a chip that
+       marks a selection, and a badge that is simply resting on the page. Nothing
+       ever shows two of them at once, and the alternative is one of the three
+       moving whenever another is tuned. */
+  --badge-surface: color(display-p3 0.979 0.979 0.979);
+  /* Declared: the colour of a state that succeeded. The equivalent is
+       oklch(0.560 0.209 139.24).
+
+       Named for the state rather than for the badge that first needed it, which
+       is the rule --destructive already keeps and the one three tokens in this
+       file have had a component's name taken back off them for. It arrives next
+       to --badge-surface because that is where the need came from, and it is not
+       a badge token.
+
+       The first colour here that is neither grey, --primary nor --destructive.
+
+       AT --PRIMARY'S LIGHTNESS, WHERE IT WAS 0.168 ABOVE IT
+
+       It was the design's oklch(0.728 0.266 139.24), taken as specified. Read
+       against the two chromatic colours it stands beside, that was the odd one:
+
+         --primary       0.560 0.232 261.21   (the blue, since revoked)
+         --destructive   0.577 0.245  27.33
+         --success       0.728 0.266 139.24   ← 0.168 lighter than either
+
+       (Ben revoked the blue on 2026-08-22; --primary is monochrome now and
+       --destructive is the remaining lightness peer. The green stands.)
+
+       Three accents at one lightness is the set having a band; two at 0.56 and
+       one at 0.73 is a green that reads as *lit* rather than as coloured. It
+       shows worst where the two are adjacent and mean opposite things — a diff's
+       +8 beside its −18, and a status badge's green dot beside a red one, which
+       are 7px circles differing by a sixth of the lightness scale.
+
+       0.209 is the chroma ceiling for this hue at this lightness in display-p3
+       — 0.178 in sRGB — so it is as saturated as 0.560 allows rather than a
+       number picked to be quieter. The hue is the design's, untouched.
+
+       This is a departure from a stated design value and is one on purpose. The
+       Paper file says 0.728; the set says accents live at 0.56, and two of the
+       three already did.
+
+       A .dark counterpart now, where the old value needed none. That argument
+       was that --destructive has to climb from 0.577 to 0.704 to hold on a dark
+       ground and this green was already past where the climb lands — true at
+       0.728 and false at 0.560, so the climb is declared below. Same ΔL as
+       --destructive's, +0.127, and the chroma held rather than dropped: red
+       loses chroma on that climb because its gamut narrows, and green's does
+       not (0.256 available at 0.687). */
+  --success: color(display-p3 0.252 0.549 0);
+  /* Declared: an option — the label and the glyph of something you can pick
+       out of a list. Kept in display-p3 as specified; the equivalents are
+       oklch(0.346 0 0) and oklch(0.726 0 0).
+
+       The label is a fifth grey and it is genuinely new rather than a near
+       miss: 0.346 sits 0.201 below --foreground (0.145) and 0.128 above
+       --content-foreground (0.474), which is twenty-five times the delta this
+       file calls imperceptible. With five secondary greys now declared the ramp
+       is worth reading in one place, darkest first:
+
+         --foreground                 0.145   body text
+         --option-foreground          0.346   something you can pick
+         --content-foreground         0.474   something you read
+         --label-foreground           0.509   something that names another thing
+         --muted-foreground           0.556   secondary text
+         --kbd-foreground             0.628   a glyph on a keycap
+         --option-icon-foreground     0.726   a glyph beside an option
+         --input-disabled-foreground  0.735   text that is switched off
+         --caret-foreground           0.751   a mark between labels
+         --tab-foreground             0.792   an unselected tab
+
+       The icon is one value where the design draws two. Its star is 0.652 and
+       its arrow 0.665 — 0.011 apart, which is two source glyphs rather than two
+       decisions, so this takes the darker.
+
+       It is *not* --input-disabled-foreground despite landing 0.009 from it.
+       That token means switched off, and a live menu icon borrowing it is the
+       "different colours that coincide" trap this file has now caught three
+       times. Naming it separately costs one line and stops a disabled-state tweak
+       moving every menu icon in the set. */
+  --option-foreground: color(display-p3 0.225 0.225 0.225);
+  --option-icon-foreground: color(display-p3 0.652 0.652 0.652);
+  /* Declared: the caret. Kept in display-p3 as specified; the equivalent is
+       oklch(0.751 0 0).
+
+       One grey for one drawn mark, and it is deliberately not named after either
+       component that uses it. The design gives breadcrumb and pagination the
+       identical path at the identical value, doing two different jobs — a
+       separator between crumbs, a direction between pages — so the thing being
+       named is the caret itself rather than the job. It arrived as
+       --breadcrumb-separator, which was that mistake, made before the second
+       consumer existed to reveal it.
+
+       It sits 0.277 lighter than the crumbs it divides, about halfway from the
+       labels to the page. That gap is what lets a trail read as words with marks
+       between them rather than as one continuous run.
+
+       It lands 0.016 from --input-disabled-foreground (0.735) and is still
+       declared separately. ADR 0002 refuses a *second definition of one colour*;
+       these are two different colours that nearly coincide — a mark that should
+       recede, and text that is switched off — so sharing would mean nudging one
+       silently moves the other. The distinction --tab-indicator already draws
+       against --button-hover. */
+  --caret-foreground: color(display-p3 0.683 0.683 0.683);
+  /* Declared: content that reads as primary without being body text. Kept in
+       display-p3 as specified; the equivalent is oklch(0.474 0 0).
+
+       A fourth grey rather than one of the three it sits between. It is 0.035
+       darker than --label-foreground (0.509) — seven times the delta this file
+       has twice called imperceptible — so anything that borrowed that token
+       would be visibly off the design. Same argument --kbd-foreground makes for
+       the gap it lands in.
+
+       Two consumers, drawn from two nodes of the design. A breadcrumb's crumbs
+       are 0.360; a dropdown trigger's caret is 0.356, which is 0.004 away and
+       therefore the same colour by this file's own measure. It arrived as
+       --breadcrumb-foreground, and is the third token in this session to need
+       its component's name taken off it.
+
+       What the two have in common is worth stating, because it is what the name
+       now means: both are things you are meant to *read*. It is why the trigger's
+       caret is this and not --caret-foreground — that grey is for a mark between
+       labels, and a caret that says "this opens" is the strongest thing in the
+       control rather than the quietest.
+
+       A breadcrumb draws its current page in this too. The design gives
+       Grandparent, Parent and Child identically, so the page is marked by
+       aria-current and by not being a link, and that is the first thing to
+       re-examine if a trail stops answering which page you are on.
+
+       Pagination's numbers are *not* this. The design gives those 0.398, which
+       is --label-foreground exactly, so a trail and a page run sit one step
+       apart on purpose. */
+  --content-foreground: color(display-p3 0.36 0.36 0.36);
+  /* Declared: a data table's resting ink. In light it is --content-foreground
+       exactly, which is what the table already drew with, and it is named for
+       the reason --hairline is: dark wants it lower and --content-foreground
+       has a second consumer in the breadcrumb, which nobody asked to change. */
+  --table-foreground: var(--content-foreground);
+  /* The ink of the row under the pointer, and in light the same colour it
+       already had. Declared rather than omitted because the rule in table is
+       scheme-independent — every row hover reads this token — and what differs
+       between the schemes is the value, which is what a token layer is for. A
+       `dark:` utility at the call site would put the scheme in the component
+       instead, where the next reader has to go looking for it.
+       Light holds because the fill carries the message on its own here: a hover
+       darkens a white surface under text that is already dark ink. */
+  --row-hover-foreground: var(--content-foreground);
+  --row-hover-muted-foreground: var(--muted-foreground);
+  --row-hover-label-foreground: var(--label-foreground);
+  /* Declared: the page you are on, in a page run. Kept in display-p3 as
+       specified; the equivalent is oklch(0.969 0 0).
+
+       It sits 0.010 from --tab-track (0.944) and is declared anyway, on the line
+       the tab tokens already drew: a segmented track and a pagination pill are
+       two colours that coincide today, not one colour named twice, and ADR 0002
+       refuses only the latter. Borrowing would mean nudging a tab silently moves
+       a page.
+
+       The edge is that fill at 67%, and it is a feather rather than a hairline.
+       A box-shadow with no `inset` paints outside the border box, so this
+       composites over the page and not over the pill — half a pixel of about
+       0.969 against white, which softens the fill's edge instead of drawing one.
+       That is why it can share the fill's colour and still do something. The
+       67% is --shadow-control's own alpha, reused rather than rederived.
+
+       It is the cheapest thing here to drop: half a pixel at that delta is close
+       to what this file already calls imperceptible, and the pill loses only its
+       softened edge. */
+  --pagination-active: color(display-p3 0.954 0.954 0.954);
+  /* Declared: selected text. AppleHighlightColor under the Graphite accent —
+       `0.847059 0.847059 0.862745`, which is #D8D8DC, and this round-trips to
+       exactly that triple. The 0.005 chroma is macOS's own faint blue cast —
+       its blue channel sits four points above the other two — not a stray
+       digit. Not read off this machine: the accent here is Multicolour, so
+       the system highlight is blue and the grey exists only under Graphite.
+       No foreground token. macOS does not recolour text under a grey
+       highlight, so ::selection sets the background and leaves the colour
+       alone. A disabled field used to opt into this grey while live text
+       took a blue pair; they are the same highlight now, so that fork is
+       gone.
+       Opaque, so it carries its own background instead of compositing over
+       the page — which is a fact about its alpha and was for a while written
+       here as "no .dark counterpart", two different claims. It has one now; see
+       the note in the .dark block. */
+  --selection: oklch(0.883 0.005 286.3);
+  /* The same grey, held at 0.56 — the lightness the old blue fill sat at,
+       kept as its own value now that the blue is gone (an anchor that died
+       does not take the working grey with it). --selection is a highlight —
+       oklch 0.883 against white, which a 14px box and an 18px track both
+       vanish into. This is the fill a checked control can actually carry,
+       and the mark that held on blue holds on grey: a 0.985 tick reads on a
+       0.56 fill. Same chroma and hue as --selection, not a second grey. */
+  --selection-strong: oklch(0.56 0.005 286.3);
+  /* Declared: the tooltip, and the keycap it can carry. Kept in display-p3 as
+       specified; the equivalents, darkest first:
+
+         --tooltip                 oklch(0.166 0 0)   the surface
+         --tooltip-kbd             oklch(0.319 0 0)   a keycap's face on it
+         --tooltip-kbd-edge        oklch(0.399 0 0)   that keycap's edge
+         --tooltip-kbd-foreground  oklch(0.947 0 0)   the letter on the cap
+         --tooltip-foreground      oklch(0.961 0 0)   the label
+
+       Five values and no .dark counterpart, which is the decision rather than an
+       omission. Every other surface in this file is theme-reactive and the
+       tooltip was too: bg-foreground over text-background, which under .dark
+       resolved to oklch(0.985) — the lightest thing on the screen, for a
+       component whose whole job is to be temporary. It stays the same dark chip
+       in both themes. See docs/adr/0010-tooltip-surface.md.
+
+       The surface is its own grey and not --foreground borrowed. It sits 0.021
+       above it, twice the 0.011 this file elsewhere calls two source values
+       rather than two decisions, so the two are genuinely apart — and
+       --foreground means body text on a page, which is not a thing an overlay's
+       fill should be tied to.
+
+       The label is deliberately not white. 0.961 against the 1.0 that
+       text-background resolved to: full strength stays available, so the letter
+       on the keycap can sit under the label at 0.947 and still read as bright.
+       Those two are 0.014 apart, which is the smallest step this file trusts.
+
+       The keycap pair exists because a keycap has no fill anywhere else and
+       needs one here. Its edge everywhere else is --input, which is oklch(0.922)
+       in light — a near-white hairline that would read as a cut-out on 0.166
+       rather than as a rim. Face and edge sit 0.080 apart, the edge lighter, so
+       a 16px cap reads as a raised object on the surface instead of a hole in
+       it. kbd.tsx predicted this pass and declined to guess at it. */
+  /* Declared: code, in four roles and no more. The equivalents:
+
+         --code-comment  oklch(0.556 0 0)         a line about the code
+         --code-keyword  oklch(0.470 0.190 292)   structure
+         --code-string   oklch(0.470 0.090 230)   a value written down
+         --code-number   oklch(0.470 0.090 230)   the same, shared
+
+       Four because a highlighter that colours nine things is a theme, and this
+       file has spent nine ADRs refusing to acquire a second one. Identifiers,
+       functions, types, JSX tags and punctuation stay --content-foreground:
+       what a reader needs at 11px inside a folded step is to tell a comment
+       from code and a value from structure, which is three distinctions.
+
+       The hues avoid green and red entirely, and that is the binding
+       constraint rather than taste. A diff tints its rows with --success and
+       --destructive at 10%, so a red keyword on a removed line or a green
+       string on an added one would read as the row's own state rather than as
+       syntax. Violet and blue are the two directions left that carry at this
+       size, and both sit at 0.470 — one lightness for every coloured role, so
+       nothing in the block out-shouts the code it is part of.
+
+       String and number share a value on purpose. They are the same thing to a
+       reader scanning a diff — a literal — and splitting them would be a
+       distinction the eye has to learn without being paid for it. Two names for
+       one colour so either can move later, which is what ADR 0002 asks of
+       colours that coincide rather than being the same.
+
+       Comment is --muted-foreground exactly, borrowed rather than redeclared:
+       secondary text is what a comment is, and this is the one role where the
+       existing ramp already meant the right thing. */
+  --code-comment: var(--muted-foreground);
+  --code-keyword: oklch(0.47 0.19 292);
+  --code-string: oklch(0.47 0.09 230);
+  --code-number: oklch(0.47 0.09 230);
+  --tooltip: color(display-p3 0.057 0.057 0.057);
+  --tooltip-foreground: color(display-p3 0.949 0.949 0.949);
+  --tooltip-kbd: color(display-p3 0.198 0.198 0.198);
+  --tooltip-kbd-edge: color(display-p3 0.279 0.279 0.279);
+  --tooltip-kbd-foreground: color(display-p3 0.93 0.93 0.93);
+  /* Declared: the canvas. ask-ben — "the canvas is a quiet gray,
+       oklch(0.99 0 0) beneath surfaces wearing explicit bg-background. The
+       --background token itself stays white — graying the token grays every
+       control." So this is its own token and the body wears it. */
+  --canvas: oklch(0.99 0 0);
+  /* Declared: the status indicator's own two colours, Apple's system palette.
+       systemGreen and systemRed at their iOS light values, as published.
+
+       Their own, and that is the whole point of the entry. The dot used to wear
+       --success and --destructive, which is also what a diff paints its added
+       and removed lines with — one green and one red doing two unrelated jobs.
+       The two are not the same statement: a diff's colours are a *reading* of
+       text, spread across a whole line as a 10%-alpha wash and tuned to stay
+       legible under code, while the indicator is a 7px disc that has to carry
+       its meaning at that size with nothing to help it. Tuning either one moved
+       the other, and the accent-lightness note further up this file records the
+       collision from the diff's side — "a diff's +8 beside its −18, and a status
+       badge's green dot beside a red one".
+
+       So the dot is unhooked. --success and --destructive keep the diff and
+       every validation state; these two answer only to the indicator, and
+       either pair can now be tuned without the other moving.
+
+       Hex rather than display-p3, unlike the tokens above: these are quoted
+       values from someone else's published palette, and converting them would
+       make them approximations of a spec rather than the spec. Apple's dark
+       counterparts are #30d158 and #ff453a — recorded here rather than declared,
+       and the .dark counterparts below are Apple's own for a dark ground,
+       quoted the same way rather than climbed from this pair. A published
+       palette has already done the work of holding up on black; rederiving it
+       here would be inventing a number and citing someone else for it.
+
+       The neutral dot is untouched. It is --muted-foreground, a grey from the
+       text ladder, and it was never borrowing from the diff. */
+  --indicator-success: #34c759;
+  --indicator-destructive: #ff3b30;
+
+  /* Declared: the three values a cell reporting a failure can be. Opaque, and
+       that is the whole decision — see the cell-danger utility for why. Named
+       here rather than inlined because two files need the rule colour: the
+       tinted cell for three of its borders, and the cell to its left for the
+       fourth, which border-collapse will not let the tinted one own. A
+       color-mix written twice is a color-mix that drifts.
+
+       The fill is faint because the table it sits in is quiet. That whole
+       ladder of state lives inside five values of 255 — the surface at 255,
+       the canvas at 252, the band at 253, a row hover at 250 — and a first
+       pass at a tenth put a chroma departure of 22 in the fill and 38 on
+       hover, which is not a tint in that company, it is an alarm. 6 and 10
+       measure 13 and 21, and they read because the ground is near-white and
+       chroma is found there far more readily than lightness: a cell you notice
+       without being told to is the entire requirement.
+
+       The rule does not follow the fill down, and that asymmetry is the point
+       rather than an oversight. They are not two strengths of one colour doing
+       one job. The fill is a wash you should register without examining; the
+       rule is what bounds the cell, and it exists because the neutral hairline
+       it replaced looked like dirt on the tint rather than a line on it. A
+       boundary that has to be seen as a boundary needs to be darker than the
+       field it encloses, and 0.5px of it is a very small amount of ink — four
+       times the fill in mix is nothing like four times the presence. Dropping
+       it to match the fill was tried and gave the run a soft edge that read as
+       the tint bleeding.
+
+       Three declared steps rather than one plus arithmetic, because the
+       intervals are judgements about how loud each part should be and not a
+       ratio worth deriving. */
+  --cell-danger-fill: color-mix(
+    in oklab,
+    var(--destructive) 6%,
+    var(--background)
+  );
+  --cell-danger-fill-hover: color-mix(
+    in oklab,
+    var(--destructive) 10%,
+    var(--background)
+  );
+  --cell-danger-rule: color-mix(
+    in oklab,
+    var(--destructive) 25%,
+    var(--background)
+  );
+
+  /* The same three steps for a cell reporting success, at the same intervals,
+       mixed from --success rather than --indicator-success. ADR 0017 split those
+       two greens on exactly this question: --success is a wash under text, tuned
+       to stay light enough to read through and to be told apart from the removed
+       line's red down a column of them, where the indicator is a 7px disc that
+       wants more chroma than a wash can afford. A tinted cell is the wash case,
+       and it is the second consumer that green has ever had. */
+  --cell-success-fill: color-mix(in oklab, var(--success) 6%, var(--background));
+  --cell-success-fill-hover: color-mix(
+    in oklab,
+    var(--success) 10%,
+    var(--background)
+  );
+  --cell-success-rule: color-mix(
+    in oklab,
+    var(--success) 25%,
+    var(--background)
+  );
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  /* Monochrome inverts. The blue's rule — "a hue that carried meaning in
+       light does not stop carrying it in dark" — was about a hue, and died
+       with it: a 0.205 fill on a 0.145 canvas is invisible, so the fill goes
+       light and the text dark, the polarity the stock pair always had. Hover
+       dims a step (a light fill has nowhere lighter to go), and the edge
+       is the fill's own value, as in light. */
+  --primary: oklch(0.922 0 0);
+  --primary-hover: oklch(0.87 0 0);
+  --primary-edge: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  /* oklch(0.687 0.209 139.24) — the same +0.127 climb --destructive takes
+       above, from a light value that now sits low enough to need one. Chroma is
+       held at 0.209 rather than dropped: --destructive loses chroma climbing
+       because red's gamut narrows as it lightens, and green's does not. */
+  --success: color(display-p3 0.403 0.707 0.232);
+  /* Every 0.5px edge, a step quieter. A white line on a near-black page reads
+       louder than a grey one on white at the same nominal strength — the
+       asymmetry the hover-step decree settles for fills, the tab chip's rim
+       for a raised edge, and --input-focus for a focused one. This is the same
+       correction applied to the resting line.
+       --hairline at 12% rather than --input's 15%, which is exactly why it is
+       its own token: --input keeps 15% so `bg-input/30` and the disabled fill
+       are untouched, and only the drawn line moves.
+       --border to 8% takes the table's rules and every divider with it.
+       --chip-edge to 12% keeps a badge's edge in step with a control's.
+       Ported from marina. Ben: "in dark mode can we make the .5px borders ever
+       so slightly more subtle across the whole app". */
+  --hairline: oklch(1 0 0 / 12%);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.556 0 0);
+  /* Inferred, not specified: 0.509 against a 0.145 background is too dim to
+       read, so dark uses the established secondary-text step instead. */
+  --label-foreground: oklch(0.708 0 0);
+  /* Inferred, not specified — the design covers light only, so dark keeps what
+       it already rendered rather than inventing a match.
+       The fill is exactly the old `bg-input/80`: --input is oklch(1 0 0 / 15%)
+       under .dark, and 15% × 80% is the 12% written here. Kept translucent, as it
+       was, so a disabled field inside a card composites over the card.
+       The text is the one real change. `opacity-50` over --muted-foreground
+       resolved to about oklch(0.503); this rounds to the established 0.556
+       secondary-text step, 0.05 lighter, so dark recedes below its
+       --muted-foreground (0.708) the way light recedes above its (0.556). */
+  --input-disabled: oklch(1 0 0 / 12%);
+  --input-disabled-foreground: oklch(0.556 0 0);
+  /* Inferred, not specified — the design covers light only. --input is white
+       at 15% here, and a small control needs the same relative strengthening it
+       gets in light, so this doubles it. Kept translucent for the reason --input
+       is: a checkbox inside a card should take the card's fill, not the page's. */
+  --input-small: oklch(1 0 0 / 30%);
+  /* A third above --input's alpha, 15% to 20% — the light value's "more
+       present" is a step, and doubling read as a lit border on a dark ground
+       (Ben, 2026-08-23) — expressed the way this scheme's --input is: an alpha on white
+       rather than a grey, so a control inside a card still takes the card's fill
+       through its edge. It coincides with --input-small here and stays its own
+       declaration: one is a small control's resting edge and one is any
+       control's focused edge, and tuning either should not move the other. */
+  --input-focus: oklch(1 0 0 / 20%);
+  /* Inferred, not specified — the design covers light only. Takes the
+       established secondary-text step, as --label-foreground does above, rather
+       than mirroring light's recede. Light's 0.628 sits 0.072 *above* its
+       --muted-foreground, so the rule stated for --input-disabled-foreground
+       would put dark 0.072 below 0.708, and the nearest established step down
+       from there is 0.556 — which is what disabled text uses. A keycap is not
+       disabled and should not read as dim as one, so it holds at 0.708. */
+  --kbd-foreground: oklch(0.708 0 0);
+  /* Inferred, not specified — the design covers light only. The fill is
+       exactly the `bg-input/50` this replaces: --input is oklch(1 0 0 / 15%)
+       here, and half of it is 7.5%. The text takes the established secondary
+       step rather than mirroring light's lightening, which from 0.985 would run
+       past white. */
+  --button-hover: oklch(1 0 0 / 7.5%);
+  --button-hover-foreground: oklch(0.708 0 0);
+  /* Inferred, not specified — the design covers light only. The track and the
+       label reproduce what dark already rendered before the tokens existed:
+       bg-muted (0.269), and text-muted-foreground.
+       The chip does not, any more. It was bg-input/30 — oklch(1 0 0 / 4.5%),
+       a translucent white over the track — worn under a 15% white ring and two
+       10% white inset lines, and the three together are glass: a bright rim all
+       the way round a pane you can see the track through. Light's chip is not
+       that and never was. Its fill is opaque (p3 0.987) and its two highlights
+       are pure white on a near-white fill, a 0.013 step nobody sees, so what
+       light actually draws is a solid block one step up from its track with a
+       *darker* hairline under it. The rim is the whole difference, and its
+       direction is the tell: light's edge is 0.105 below its chip and dark's
+       was 0.088 above.
+       So the chip goes opaque and the rim comes off — the indicator takes
+       dark:shadow-none in tabs.tsx rather than this file blanking
+       --chip-edge and --chip-highlight, because a badge draws the same two and
+       the badge is not what changed.
+       0.330 rather than the 0.309 the old translucent fill composited to. With
+       the ring gone the fill is the only thing marking the chip, and it has to
+       carry what the rim was carrying. The value is the next rung on this
+       block's own surface ladder — 0.145 page, 0.205 card, 0.269 track, each
+       about 0.06 apart — rather than a number chosen by eye.
+       That leaves the chip 0.061 above its track where light's sits 0.033 above
+       its own, and the exaggeration is the same one --badge-surface makes four
+       lines down: light can recess a surface toward its page, dark has to lift
+       one away from a floor it cannot go below. */
+  --tab-track: oklch(0.269 0 0);
+  --tab-indicator: oklch(0.33 0 0);
+  --tab-foreground: oklch(0.708 0 0);
+  --chip-edge: oklch(1 0 0 / 12%);
+  --chip-highlight: oklch(1 0 0 / 10%);
+  /* Inferred, not specified — the design covers light only. Light recesses the
+       badge 0.016 below its page; dark cannot recess below 0.145 without going to
+       black, so it lifts instead, which is the inversion --pagination-active
+       already makes. 6% rather than the tab chip's 4.5%, holding the same order
+       the two keep in light: the badge sits a step further from its background
+       than the chip does from its track. */
+  --badge-surface: oklch(1 0 0 / 6%);
+  /* Inferred, not specified — the design covers light only. Light puts an
+       option one step below body text; dark does the same, and 0.922 is that
+       step. The icon takes the established secondary step, as
+       --content-foreground, --label-foreground and --kbd-foreground all do here,
+       so a menu's glyphs recede in dark by the same amount everything else
+       does. */
+  --option-foreground: oklch(0.922 0 0);
+  --option-icon-foreground: oklch(0.708 0 0);
+  /* Inferred, not specified — the design covers light only. The caret steps
+       down to 0.556, the value dark disabled text takes. --kbd-foreground
+       refused that same step on the grounds that a keycap should not read as dim
+       as something switched off; a mark between labels should. It is the nearest
+       established step that recedes at all, and light puts this mark halfway
+       from the labels to the page. */
+  --caret-foreground: oklch(0.556 0 0);
+  /* Inferred, not specified — the crumb takes the established secondary step,
+       as --label-foreground and --kbd-foreground both do here. */
+  --content-foreground: oklch(0.708 0 0);
+  /* A step under --content-foreground's 0.708, where light has the two equal.
+       A table at rest is a field to scan rather than a paragraph to read, and
+       on a dark ground 0.708 across nine columns and fifty rows is a lot of lit
+       text — the hover ladder exists precisely because a row you are pointing
+       at should be the bright one, and it has more to lift from at 0.665.
+       Ported from marina. Ben: "the text in the data table should be more
+       subtle in dark mode when resting". */
+  --table-foreground: oklch(0.665 0 0);
+  /* Half the way from the secondary step to the primary one — 0.708 toward
+       0.985, landing on 0.847.
+
+       The fill says where the pointer is and this says it again, on the channel
+       the fill is weakest on. On white a row hover darkens the surface under
+       text that is already dark ink and needs no help; here the same hover is a
+       0.031 lift on a near-black page under text at the secondary step, which is
+       quiet against quiet.
+
+       Half and not all, because the row is being pointed at rather than
+       selected. Ink at full strength is what --foreground means, and a row that
+       reached it on hover would promote itself above every row the reader is not
+       pointing at — a claim about content rather than about the pointer. A
+       quarter went in first and Ben read it as still too subtle.
+
+       Mixed toward --foreground rather than written as a lighter grey, so the
+       expression says *more present* and means it in either scheme. Marina,
+       2026-08-21. */
+  --row-hover-foreground: color-mix(in oklab, var(--table-foreground) 50%, var(--foreground));
+  /* Three, because a row's text is three roles and not one, and only the first
+       of them inherits. See ADR 0020: a hover rule that sets a colour reaches
+       cells taking the table's own ink and nothing else, which measured four
+       cells of ten sitting still — including a job's name.
+       In this scheme all three rest at 0.708 and all three land on 0.847. They
+       stay separate tokens because light has to be a no-op and there the bases
+       genuinely differ — 0.474, 0.556 and 0.509 — so one shared token would drag
+       muted and label onto content's value the moment a row was hovered. */
+  --row-hover-muted-foreground: color-mix(in oklab, var(--muted-foreground) 50%, var(--foreground));
+  --row-hover-label-foreground: color-mix(in oklab, var(--label-foreground) 50%, var(--foreground));
+  /* Inferred, not specified — the design covers light only. Light recesses the
+       pill 0.031 below its page; dark cannot recess below 0.145 without going to
+       black, so it raises instead, and lands on exactly what --tab-track takes
+       here. The two coincide in dark where light keeps them 0.010 apart, which is
+       the same coincidence the light note declines to collapse. */
+  --pagination-active: oklch(0.269 0 0);
+  /* The code roles, lifted for a dark ground. Same two hues at the same one
+       lightness, moved from 0.470 to 0.780 — the light values are a third the
+       lightness of their page and these are a third above theirs, so the
+       relationship survives rather than the number. Chroma comes down a little
+       with it: a saturated violet that reads as ink on white reads as neon on
+       black. --code-comment needs nothing, being --muted-foreground, which
+       inverts on its own. */
+  --code-keyword: oklch(0.78 0.14 292);
+  --code-string: oklch(0.78 0.07 230);
+  --code-number: oklch(0.78 0.07 230);
+
+  /* Inferred, not specified. Under .dark the page's text is --foreground at
+       0.985, and 0.985 on a 0.883 highlight is white on white, so the highlight
+       has to move.
+
+       It moves by the interval it already keeps, in the direction the ground has
+       room for. Light sets the highlight 0.117 *below* its --background of 1.0;
+       this sets it 0.117 above its 0.145. What that preserves is the thing a
+       highlight is for — the gap to the text lying on it — at 0.723 here against
+       light's 0.738, which is 0.015 apart and under what this file trusts as a
+       step.
+
+       Same chroma and hue: macOS's faint blue cast is a property of the
+       highlight rather than of the ground it sits on.
+
+       It lands 0.007 from --accent and --muted, which both take 0.269 here.
+       Those two are neutral and this carries the cast, so they are not one
+       colour, and the rule for colours that merely coincide is that they stay
+       declared apart.
+
+       --selection-strong is deliberately absent. Its 0.56 is held as its own
+       value in the light block and holds here for the same reason it always
+       did: a 0.56 fill under a 0.985 tick reads on either ground. (It once
+       tracked the blue fill's lightness; the blue is gone and the grey
+       stands.) Marina, 2026-08-20. */
+  --selection: oklch(0.262 0.005 286.3);
+
+  /* Apple's dark-ground pair for the status light, quoted rather than
+       derived. Every other accent in this block climbs from its light value by
+       a stated ΔL, and these two do not, on purpose: the light pair is a
+       quotation and so is this one, so the thing that keeps them honest is the
+       source rather than an arithmetic relationship to each other. */
+  --indicator-success: #30d158;
+  --indicator-destructive: #ff453a;
+
+  /* The canvas inverts rather than following its light value down. On white
+       the page is a step *below* the surfaces so they read as raised; on black
+       the same relationship needs the page a step below --background's 0.145,
+       and a canvas left at the light 0.99 would put the brightest thing on the
+       screen behind everything else — the decree exactly backwards.
+
+       0.115 is 0.030 under --background, the same interval the light pair
+       keeps (1.0 against 0.99 is 0.010 in oklch, and dark grounds need more
+       separation to read as separate at all — the 0.145/0.205 step between
+       --background and --card is 0.060, so this sits deliberately inside it:
+       a floor, not another surface). */
+  --canvas: oklch(0.115 0 0);
+}
+
+@theme inline {
+  /* Suisse Intl and Berkeley Mono are the two deliberate overrides in this
+       file. Tailwind resolves --default-font-family to --font-sans, so naming
+       the family here changes every default on its own — no
+       `html { @apply font-sans }` rule. Adding one is what made the previous
+       mono override total. The fallbacks are Tailwind's own stacks with the
+       two faces in front.
+       Both are licensed now, and the fallback behind each is still why the
+       difference matters. Suisse's files travel with the repository (ADR
+       0024), so the face behind that first name is one a consuming repository
+       actually has — the stack after it is a real fallback rather than the
+       expected outcome. Berkeley is licensed per-seat and cannot travel, so
+       for anyone but us ui-monospace is what renders. ADR 0011 for the
+       posture, ADR 0024 for the face and the clause it moved.
+       Nothing designed sits between Berkeley and the system mono: a second
+       chosen mono in the stack would hide a failed load behind something that
+       still looks intentional. See docs/adr/0005-berkeley-mono.md.
+       Inter held this name from 2026-08-20 (ADR 0018), Geist before it. */
+  --font-sans:
+    "Suisse Intl", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono:
+    "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  /* Control surface: the resting edge shared by interactive controls. A
+       hairline drawn as a shadow rather than a border, over a soft ambient
+       shadow, so the field reads as raised.
+       The hairline references --input, so `.dark` recolours it. It sits in the
+       --tw-shadow slot, which leaves --tw-ring-shadow free for
+       focus-visible:ring-* and aria-invalid:ring-* to compose on top instead of
+       overwriting box-shadow — which an arbitrary [box-shadow:…] would.
+       Rolled out to Input first; see docs/adr/0002-control-surface.md. */
+  --radius-control: 0.5625rem;
+  /* The hairline itself, named because four surfaces draw it and three of
+       them were writing it out. `shadow-[0_0_0_0.5px_var(--input)]` appeared in
+       button, input and input-group — the bare edge without the ambient, which
+       button's own comment already called "--shadow-control, without the 4%
+       ambient blur beneath it". A surface the set has a name for and no token
+       for is one that can drift without the drift being visible. */
+  --shadow-hairline: 0 0 0 0.5px var(--hairline);
+  /* The ambient is one layer because at this size one is all there is: it is
+       shadow-plugin 2.1.0's `--smooth-shadow-xs` to the pixel and the percent —
+       `0 0 4px 0 rgba(0,0,0,0.04)` — arrived at here by hand and there by the
+       ramp, which is the reason to trust the ramp for the sizes above it. A
+       resting control is not lifted off the page, it sits on it, so there is no
+       offset and nothing for five layers to fall off across. See --shadow-menu,
+       which is the same source at the step where the layering starts to matter. */
+  --shadow-control: 0 0 4px oklch(0 0 0 / 4%), var(--shadow-hairline);
+  /* A button corners tighter than a field, at 7px against the control's 9px,
+       and needs its own step for the same reason --radius-control did: the
+       generated scale runs 6px, 8px, 10px, so 7px is not on it either, and
+       moving --radius to reach it would reshape sm/md/lg/xl for one control.
+       Everything else about the two surfaces still matches — edge, shadow, fill
+       and text — so this is the one axis on which they part. */
+  --radius-button: 0.4375rem;
+  /* 3px, and a fourth named radius. The amendment to ADR 0002 predicted that a
+       third would be the point at which these stop scaling as tokens and want a
+       rule instead. There is no rule: radius against height runs 0.281 for
+       Input, 0.219 for Button, 0.323 for a tab track, 0.280 for its chip, 0.188
+       for a keycap and 0.286 here. These are chosen per control, not derived,
+       and the ADR now says so.
+       A pixel under the design's 4px, which reads tighter on a 14px box: 21%
+       of the side against 29%. Deliberate rather than drift, so the Paper file
+       and this token disagreeing is expected.
+       Not `rounded-sm` either, which the design's own class list says, because
+       that class means 4px in the stock Tailwind the design exports from and
+       6px here — --radius-sm is calc(var(--radius) * 0.6), which would have
+       been 43% of the side. */
+  --radius-checkbox: 0.25rem; /* 4px — up from 3 by a pixel, Ben 2026-08-18 */
+  /* A critically damped spring, sampled into a timing function.
+       fluidfunctionalism.com/docs/tabs moves its indicator on Framer Motion's
+       `spring.moderate` — { type: "spring", duration: 0.16, bounce: 0 } — and
+       its own note is the specification: critically damped, so it "lands exactly
+       with no overshoot", for short travel that must settle precisely.
+       Motion solves that spring per frame in JS. CSS cannot, and a bezier cannot
+       carry the shape either: a spring is front-loaded and has a long tail, and
+       four control points buy one or the other. So x(t) = 1 - (1 + wt)e^(-wt) is
+       sampled at 21 even steps, with w set so the move is 99% done at the end —
+       half the distance is covered in the first 30% of the run, and the rest is
+       the settle.
+       Never exceeds 1 by construction, which is the whole point of the tier. */
+  --ease-spring: linear(
+    0,
+    0.0443,
+    0.1433,
+    0.2627,
+    0.3829,
+    0.4941,
+    0.5917,
+    0.6745,
+    0.7431,
+    0.7989,
+    0.8437,
+    0.8792,
+    0.9072,
+    0.929,
+    0.9458,
+    0.9589,
+    0.9688,
+    0.9765,
+    0.9823,
+    0.9867,
+    1
+  );
+  /* The control surface at small sizes: the same mechanism, different
+       parameters. A 1px spread rather than 0.5px, --input-small rather than
+       --input, and no ambient blur at all — 4px of blur bleeding off a 14px box
+       is nearly a third of its width.
+       It stays a shadow rather than becoming a border, which is the part of
+       ADR 0002 that actually earns its keep: the edge sits in the --tw-shadow
+       slot and leaves --tw-ring-shadow free, so focus-visible:ring-* and
+       aria-invalid:ring-* compose on top of the resting edge instead of
+       overwriting it. A checkbox runs both. */
+  --shadow-control-small: 0 0 0 1px var(--input-small);
+  /* The selected tab's chip. A 0.5px hairline outside, and the design's two
+       2px white lines as insets rather than border-t-2/border-b-2 — under
+       border-box those would take 4px out of a 25px chip, which is the primary
+       button's problem at twice the cost and gets the same fix. All three share
+       the --tw-shadow slot. */
+  --shadow-tab-indicator:
+    0 0 0 0.5px var(--chip-edge), inset 0 2px 0 0 var(--chip-highlight),
+    inset 0 -2px 0 0 var(--chip-highlight);
+  /* The same chip as a pill. The hairline survives a curve — a spread shadow
+       follows the border-radius the whole way round — but the two highlight
+       lines do not. An inset spread is clipped by the curvature, so on a 12.5px
+       radius the top 2px band closes into a crescent and the bottom into its
+       mirror: a smile and a frown rather than a lit top edge and a grounded
+       bottom. They are there to give a flat chip something to catch light on,
+       and a pill's curvature already reads as raised, so the pill keeps the
+       hairline alone. */
+  --shadow-tab-indicator-pill: 0 0 0 0.5px var(--chip-edge);
+  /* A menu panel. The 0.5px hairline is the design's, and it is the same one
+       --shadow-control draws — but the export gives the panel *only* that, no
+       ambient at all, which would leave a floating surface with less shadow
+       under it than the trigger that opened it. The source wraps its panel in an
+       Elevated component the export does not show, so the drawing is read as
+       partial here rather than as the spec.
+       The elevation was Tailwind's shadow-md, kept because it was what this
+       panel already carried rather than because anyone drew it — two layers at
+       10%, which put a visible dark band right under the panel's edge and then
+       stopped. It is now five layers from shadow-plugin 2.1.0's
+       `--smooth-shadow-lg`, geometry verbatim, with the alphas written in the
+       oklch this file uses everywhere else (3% is rgba 0.03 exactly). Five
+       layers with eased alpha have no band in them: the falloff is smooth from
+       the edge out to 50px, which is what makes a panel read as lifted rather
+       than as outlined twice. https://shadow.floriankiem.com
+       The hairline stays this set's and stays last. It is 0.5px on --input,
+       where the plugin's own ring is 1px on rgba(0,0,0,0.05) — both are
+       overridable there, and once both are overridden the ring is doing
+       nothing the hairline was not. Taking the stack and keeping the edge is
+       the whole of the port.
+       Named in two parts, because a surface can want one without the other: a
+       toast draws a real border, since focus recolours it, and a border with a
+       baked hairline behind it is the same edge twice. Elevation first, edge
+       last, which is the order --shadow-control already composes in.
+       No .dark fork: the hairline names --input, which forks itself, and the
+       elevation is black at either theme exactly as shadow-md was. */
+  --shadow-elevation:
+    0 25px 50px 0 oklch(0 0 0 / 5%), 0 12px 24px 0 oklch(0 0 0 / 4%),
+    0 6px 12px 0 oklch(0 0 0 / 3%), 0 3px 6px 0 oklch(0 0 0 / 2%),
+    0 1.5px 3px 0 oklch(0 0 0 / 2%);
+  --shadow-menu: var(--shadow-elevation), var(--shadow-hairline);
+  /* A card, which is the step below a panel and the step above a control. The
+       table wears it: a white surface on the canvas's grey, raised off the page
+       rather than floating over it.
+       shadow-plugin 2.1.0's `--smooth-shadow-xs` — one layer, 4px of blur at no
+       offset at all. It is a whisper, and at a table's size that is the point:
+       the card is 1071px wide, so anything with spread under it washes a large
+       part of the canvas rather than reading as an edge lifting. `--smooth-shadow-sm`
+       was here first and was too much for exactly that reason (Ben: "the shadows
+       on the table MORE subtle").
+       The same one layer --shadow-control wears, and that is not a coincidence
+       worth hiding: a table and a resting control are both on the page rather
+       than above it. What separates them is size, not height.
+       The hairline last, as everywhere: the table drew a real `border-[0.5px]`
+       before this, on --border, which is the same oklch(0.922) --input holds —
+       so the edge is unchanged and only stops being layout. */
+  --shadow-card: 0 0 4px 0 oklch(0 0 0 / 4%), var(--shadow-hairline);
+  /* The badge's surface: the same three layers as the tab chip above, on the
+       same two colours, with the lit edges at 1.5px rather than 2 because that is
+       what its design draws.
+       Insets rather than the border-top and border-bottom the export states, for
+       the reason 4f2d53e gives for the chip: real borders are layout, and under
+       border-box two of them come out of the box they are drawn on. Here that
+       matters more than there — the badge's own focus ring composes in the ring
+       slot, and a border would have to be the focus colour too, which is the
+       arrangement ADR 0002 exists to refuse.
+       All three share --tw-shadow, leaving the ring free. */
+  --shadow-badge:
+    0 0 0 0.5px var(--chip-edge), inset 0 1.5px 0 0 var(--chip-highlight),
+    inset 0 -1.5px 0 0 var(--chip-highlight);
+  /* The current page's feather. The colour is the pill's own fill at 67%, so
+       this is the one shadow here that is not drawing an edge — it paints
+       outside the border box, over the page, and softens the fill's boundary
+       rather than marking it. Derived with color-mix rather than declared as a
+       second token, since it is one colour at one alpha and not a stop of its
+       own; both ends are named tokens, so it resolves statically the way the
+       --label-foreground mixes do. Takes the --tw-shadow slot, leaving the ring
+       free for focus. */
+  /* The keycap surface, and the three drawings that go with it.
+
+       CONTEXT.md names four surfaces and this one had no token: all four of its
+       drawings lived inside one class string in kbd.tsx, which is the
+       one place in the set where a named surface could change without anything
+       else being able to name what changed.
+
+       A hairline all round, weighted along the bottom, over no fill. Not the
+       control surface and not a variant of it — a keycap sits inside a control
+       rather than on the page, so it carries no ambient shadow and has nothing
+       to be raised from. The edge is --input, on the reasoning in the
+       --input-disabled note above: the keycap needs no colour of its own.
+
+       Insets rather than a border-bottom, for the reason the chip and the
+       primary button give: under border-box a real border comes out of a 16px
+       box, and the ring slot has to stay free. */
+  --shadow-keycap: var(--shadow-hairline), inset 0 -1px 0 0 var(--input);
+  /* Impressed: the weighted bottom halved, which reads as sunk rather than
+       flush. A pressed key still has a side wall, so the inset thins rather
+       than going. */
+  --shadow-keycap-pressed:
+    var(--shadow-hairline), inset 0 -0.5px 0 0 var(--input);
+  /* The keycap surface's opposite, and a second surface rather than a variant
+       of it: on a dark ground the weighted bottom that makes a cap read as a key
+       cannot be seen at all, so what survives is a filled rectangle with a lit
+       rim. Uniform, lighter than its own face, over a fill. Same cap either way
+       — same square, same corner, same component. ADR 0010. */
+  --shadow-tooltip-keycap: 0 0 0 0.5px var(--tooltip-kbd-edge);
+  --shadow-pagination-active: 0 0 0 0.5px
+    color-mix(in srgb, var(--pagination-active) 67%, transparent);
+  --color-background: var(--background);
+  --color-canvas: var(--canvas);
+  --color-indicator-success: var(--indicator-success);
+  --color-indicator-destructive: var(--indicator-destructive);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-edge: var(--primary-edge);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-label-foreground: var(--label-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  /* Mapped so a component can reach the Graphite pair as utilities.
+       ::selection and the copy field use the highlight; checkbox and switch
+       use the strong stop as a fill. */
+  --color-selection: var(--selection);
+  --color-selection-strong: var(--selection-strong);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-disabled: var(--input-disabled);
+  --color-input-disabled-foreground: var(--input-disabled-foreground);
+  --color-kbd-foreground: var(--kbd-foreground);
+  /* The tooltip's five. Mapped so the surface and the keycap that sits on it
+       are both reachable as utilities — the keycap's are read by kbd,
+       which recolours itself from inside a tooltip rather than the tooltip
+       reaching in to recolour a child it does not own. */
+  --color-code-comment: var(--code-comment);
+  --color-code-keyword: var(--code-keyword);
+  --color-code-string: var(--code-string);
+  --color-code-number: var(--code-number);
+  --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
+  --color-tooltip-kbd: var(--tooltip-kbd);
+  --color-tooltip-kbd-edge: var(--tooltip-kbd-edge);
+  --color-tooltip-kbd-foreground: var(--tooltip-kbd-foreground);
+  --color-button-hover: var(--button-hover);
+  --color-button-hover-foreground: var(--button-hover-foreground);
+  --color-tab-track: var(--tab-track);
+  --color-tab-indicator: var(--tab-indicator);
+  --color-badge-surface: var(--badge-surface);
+  --color-option-foreground: var(--option-foreground);
+  --color-option-icon-foreground: var(--option-icon-foreground);
+  --color-tab-foreground: var(--tab-foreground);
+  --color-caret-foreground: var(--caret-foreground);
+  --color-content-foreground: var(--content-foreground);
+  --color-table-foreground: var(--table-foreground);
+  --color-row-hover-foreground: var(--row-hover-foreground);
+  --color-pagination-active: var(--pagination-active);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  /* The ladder's smallest rung, which was missing: 0.6, 0.8 and 1.0 below
+       lg, so 0.4 is the next step down by the scale's own rule. Without it
+       `rounded-xs` fell through to Tailwind's 2px, which ignores --radius —
+       so the one class most likely to be reached for on something small was
+       the one class not answering the set. 3.6px. */
+  --radius-xs: calc(var(--radius) * 0.4);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  /* Scrollbars: 6px, light grey, on nothing.
+
+     Two systems, and they are mutually exclusive rather than complementary.
+     `scrollbar-width` is the standard property and takes `auto | thin | none`
+     and no length — `6px` is rejected outright and falls back to `auto`.
+     Measured in Chrome, the three keywords reserve 15px, 11px and 0. `thin` is
+     the floor, and this set sat on it.
+
+     Going under it means ::-webkit-scrollbar, and the catch is that Chrome
+     ignores those pseudo-elements the moment *either* standard property is set:
+     6px webkit beside `scrollbar-width: thin` still measured 11px, and beside
+     `scrollbar-color` alone it measured 15px. So both had to come off, which is
+     why the thumb colour is declared twice below rather than once.
+
+     Firefox has no ::-webkit-scrollbar and would fall back to `auto` — 15px,
+     *wider* than the 11 it had — so it keeps the standard properties behind a
+     gate. Its bars stay 11px. That divergence is the price of the ask and is
+     stated rather than discovered: the set does not have one scrollbar width
+     any more, it has 6 where the pseudo-elements exist and 11 where they do
+     not.
+
+     `no-scrollbar` is a utility and sets both `scrollbar-width: none` and
+     `::-webkit-scrollbar { display: none }`, so it still wins in either engine.
+     The thumb is --input-small rather than --muted-foreground: that token is
+     CSS gray, and this is the named light chrome grey. */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--input-small) transparent;
+    }
+  }
+  /* 16 wide, carrying a 6px thumb. The two numbers are doing different jobs and
+     only one of them is the bar you see.
+
+     A scrollbar's width is the lane it takes out of the content box wherever
+     the platform draws a classic one, and a thumb painted edge to edge in a
+     6px lane sits hard against the content it is scrolling — against a diff,
+     one pixel from the tint. The lane is 16 so there is room either side, and
+     the thumb is held off both edges by a transparent border with the
+     background clipped to the content box, which is the only way to inset a
+     scrollbar thumb: it has no margin, and nothing outside can reach it.
+
+     5 + 6 + 5. The thumb stays the 6px it was and gains 5px of air on the side
+     the content is on and 5 on the side the border is.
+
+     The cost is stated: every scroller in the set gives up 16px of content
+     width rather than 6 where the platform draws a classic bar, and none where
+     it draws an overlay. */
+  ::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+  }
+  /* No track of its own. What shows in the lane is whatever the scroller is
+     painted with, which keeps the bar a mark on a surface rather than a second
+     surface beside it. */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--input-small);
+    border: 5px solid transparent;
+    background-clip: content-box;
+    /* Fully round rather than half of six: the radius resolves against the
+       border box and the paint against the content box, so a literal 3 would
+       land short of the capsule it is meant to be. */
+    border-radius: 999px;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  /* Background only. macOS does not recolour text under a grey highlight,
+     and setting colour here would invent a foreground the token no longer
+     has. Unprefixed — ::-moz-selection in the same selector list would
+     invalidate the whole rule in engines that do not know it, and no
+     current browser needs it. */
+  ::selection {
+    background-color: var(--selection);
+  }
+}
+
+/* Shimmer: a light travelling across a label, for the one step of a reply's
+   working that is still running.
+   Here rather than in the component because it needs a @keyframes, and a
+   keyframe cannot live in a className. It is the second declared utility in this
+   file, and it earns the same exemption mask-edge-fade does: a named thing the
+   utility set cannot express.
+   The sweep runs between --muted-foreground and --foreground, which is the one
+   step the set already uses to say "this is the live one" — no third grey. The
+   band is narrow and the pass is slow, so it reads as a light crossing a word
+   rather than as the word flashing.
+   background-clip: text needs the -webkit- pair to survive Safari, which is what
+   Tailwind's own bg-clip-text emits.
+   Under prefers-reduced-motion the animation stops and the label resolves to
+   --foreground rather than to the transparent it was painted in. That is not a
+   graceful degradation, it is the requirement: without it the label would
+   disappear, and the state this exists to show is the one you most need to be
+   able to read. */
+@utility shimmer-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--muted-foreground) 44%,
+    var(--foreground) 50%,
+    var(--muted-foreground) 56%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-text 1.8s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    background-image: none;
+    color: var(--foreground);
+    animation: none;
+  }
+}
+
+@keyframes shimmer-text {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+/* Edge fade: a value that continues past the visible area fades at the inline
+   edges instead of hard-clipping.
+   A named @utility rather than Tailwind's mask-* utilities, because those cannot
+   express a fixed-width edge fade. mask-x-from-3 emits
+   `linear-gradient(to right, black 12px, transparent 100%)`, which composites to
+   a wash across the whole value; mask-x-from-90% works but scales the fade with
+   the field width, so on a narrow field it reaches past the 12px padding and
+   dims the first glyph of even a short value. 12px here matches that padding, so
+   short values sit entirely in the clear zone.
+   Apply this only to an input with no surface of its own — a mask clips
+   background, radius and shadow too. InputGroupInput qualifies; Input does not.
+   See docs/adr/0003-edge-fade.md. */
+/* The overlay panel, in three utilities, because it was in thirteen files.
+
+   Every positioned overlay in the set draws the same panel, comes in the same
+   way, and slides from the same six sides — and each of them held its own copy
+   of all three. Measured before this: the six-side block appeared verbatim in
+   6 files, the open-and-close block at 8 sites, `rounded-none bg-popover` at 9,
+   and `isolate z-50` on 7 positioners. Two of the thirteen had adopted
+   --shadow-menu; eleven still carried the `shadow-md ring-1 ring-foreground/10`
+   that token was declared to replace.
+
+   Copies fall behind, and four of them already had: MenubarContent had no
+   `data-closed:` classes at all and so no exit animation, its sub-content
+   carried four of the six sides, the tooltip carried three `delayed-open`
+   classes for a state Base UI does not emit, and the navigation menu had two
+   variants that do not compile. None of those is a decision anyone made.
+
+   Named @utility rather than a Popup component, deliberately. What repeats here
+   is CSS, not behaviour: each overlay wraps a different Base UI primitive with
+   its own Positioner and Popup types, and a component that took a primitive as
+   a prop would be fighting that typing to share four class strings. This is the
+   same exemption --shimmer-text and --mask-edge-fade already claim. */
+/* Hit area, where a control reaches past what it draws.
+
+   CONTEXT.md's entry on this is one of the most carefully reasoned in the
+   glossary — which space is being claimed, why the checkbox gave its expansion
+   up and a menu row keeps one — and none of that reasoning was expressible in
+   code. Five distinct reach values were written out across eleven sites, and
+   two of the five appeared verbatim in more than one file.
+
+   These two are the repeated ones, named. The three one-off reaches stay where
+   they are: a utility for a value with one caller is a name to look up rather
+   than a fact to read.
+
+   A pseudo-element and not padding, because padding is layout and this is not:
+   an ::after belongs to its originating element for hit testing, so it enlarges
+   the target without moving anything on the page. The board's hit-areas overlay
+   is what makes the result visible; see src/styles/hitbox.css. */
+@utility reach-6 {
+  /* The trigger and field reach: a button, a menu trigger, a select trigger,
+       a field's addon. 6px all round, so a 20px control takes a 32px target. */
+  @apply after:absolute after:-inset-1.5;
+}
+
+@utility reach-row {
+  /* A menu row's reach, which is its container's own padding and nothing
+       shared: 4px sideways into the panel's inset, and vertically only at the
+       ends, where the first and last rows have the panel's padding above and
+       below them to claim. Rows in the middle stop at each other — the gap
+       between two stacked controls is shared, and taking it leaves them meeting
+       in the middle. */
+  @apply after:absolute after:-inset-x-1 after:inset-y-0 first:after:-top-1 last:after:-bottom-1;
+}
+
+@utility popup-positioner {
+  /* isolate so a panel's own stacking context contains its shadow and its
+       arrow, z-50 so it clears the page it is drawn over. */
+  @apply isolate z-50;
+}
+
+@utility popup-surface {
+  /* The radius is deliberately not here. A menu corners at --radius-control
+       and a panel is square, which is a live difference between components
+       rather than one surface drawn two ways — each names its own. */
+  @apply bg-popover text-popover-foreground shadow-menu;
+}
+
+@utility popup-enter {
+  /* The stock entrance: tw-animate-css keyframes on data-open and
+       data-closed, at 100ms, fading and zooming to 95%.
+
+       This is the regime a panel has *before* the design reaches it, not a peer
+       of the one below. Nine of the eleven overlays run it because nothing has
+       said otherwise about them yet; DropdownMenu and Select run popup-rise,
+       which is drawn rather than inherited. Naming both is what makes that
+       readable — the question about any panel is now which utility it names,
+       and not what its own two hundred characters happen to say. */
+  @apply duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95;
+}
+
+@utility popup-rise {
+  /* The drawn entrance, on Base UI's transition states rather than keyframes.
+
+       Opacity, a 4px rise, and a 0.96 *vertical* squash from `top center` —
+       scaleY and not a uniform zoom, because a menu growing downward out of its
+       trigger should stretch rather than inflate. That is the real difference
+       from `zoom-in-95`, along with `slide-in-from-top-2` moving twice as far as
+       the design asks.
+
+       duration-80 on --ease-spring is spring.fast exactly: the curve is sampled
+       from normalised progress, so it time-scales rather than reshaping. The
+       exit is a 60ms tween rather than the entrance played backwards —
+       spring.fast.exit — so a dismissal reads as final rather than as a
+       reversal.
+
+       origin-top is the design's literal `top center`, replacing Base UI's
+       --transform-origin. That variable follows the anchor, which would put the
+       origin at a corner for an align=start menu; the design squashes toward the
+       middle of the top edge regardless.
+
+       Select overrides all of this under data-[align-trigger=true], where the
+       panel is already positioned over its selected row and any transform would
+       fight that placement. That override wins on specificity and stays in
+       select.tsx, because it is about that one mode and not about
+       the entrance. */
+  @apply origin-top transition-[opacity,translate,scale] duration-80 ease-spring motion-reduce:transition-none data-starting-style:-translate-y-1 data-starting-style:scale-y-[0.96] data-starting-style:opacity-0 data-ending-style:-translate-y-1 data-ending-style:scale-y-[0.96] data-ending-style:opacity-0 data-ending-style:duration-60 data-ending-style:ease-out;
+}
+
+@utility popup-backdrop {
+  /* The scrim a modal is drawn over, shared by Dialog and AlertDialog, whose
+       backdrops were byte-identical. It fades rather than zooming: the panel
+       above it is the thing arriving, and a backdrop that scales is a backdrop
+       you can see the edge of. */
+  @apply fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0;
+}
+
+@utility popup-slide {
+  /* Six sides, not four. Base UI reports `side` both physically (left/right)
+       and logically (inline-start/inline-end), so a panel that names only the
+       physical pair simply does not slide when the logical one is reported —
+       silently, and in one writing direction out of two. */
+  @apply data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2;
+}
+
+/* scroll-fade, for a scroller whose content paints its own fills.
+   Applied beside `scroll-fade`, which it retunes rather than replaces: both of
+   the values below are the vendor utility's own hooks, so the fade stays
+   scroll-driven off `--scroll-fade-t` and `--scroll-fade-b` exactly as before.
+
+   A mask fades everything the element paints, and over prose that is right —
+   the text thins toward the edge and the page shows through, because the page
+   is what is behind it. Over a diff it is not. A diff's rows are solid bands
+   and the band is the statement; dissolving one to page white reads as the
+   colour having been wiped across rather than as the row continuing under the
+   edge. Measured on the board's own trajectory, the gutter's tint went from a
+   greenness of 36.5 mid-block to 0.0 — pure white — through the top 35px.
+
+   Two changes, and they are the two causes.
+
+   The band is 12px rather than min(12%, 40px). In a 224px box that default is
+   27px, which is longer than the 24px line the block sets, so a whole row was
+   dissolving. Half a line is enough to read as cut off.
+
+   And it stops at 0.7 rather than 0. The fill here is bg-success/10 — a tenth
+   of a colour — so it has very little to give before it is white, and a mask
+   that reaches zero spends all of it. Holding the floor keeps the band while
+   the text still softens, which is the part that says "there is more". The
+   scrollbar says the rest, and it is inset and visible now. */
+/* Declared: a table cell reporting a failure — the wash and the rules that
+   cross it, together, because apart they fight.
+
+   A tenth of --destructive, the same wash the diff paints a removed line with:
+   both are "this went wrong", read under text, at an alpha low enough that the
+   text stays the thing you read. The status dot's red is deliberately not this
+   red — see --indicator-destructive — because a 7px disc and a full-cell wash
+   want opposite things from a colour.
+
+   The rules are the reason this is a utility rather than one class. A cell
+   keeps its 0.5px --border rules under the wash, and a neutral grey crossing a
+   red field does not read as a rule on a tinted cell; it reads as the tint
+   having been dirtied. Errors also arrive in runs — three failing jobs in a
+   row is the common case, not the exception — so the greys slice a single red
+   block into stripes, which is the muddiness. The rules stay, because rows
+   still have to line up across the table, and they take the tint instead.
+
+   All four sides at 0.5px, which is more than the cell needs and is about
+   border-collapse. A cell's own border beats the row's for the bottom edge,
+   but its left edge argues with the previous cell's right edge and the
+   leftmost cell wins that — so naming every side is what gets the tint onto
+   the edges this cell can actually claim, and the ones it cannot are the
+   neighbour's to give. Same 0.5px so nothing shifts: a width difference would
+   win the conflict and move the line.
+
+   25% against the fill's 10%, so the rule reads as the darker edge of the same
+   colour rather than as a second red. */
+@utility cell-danger {
+  /* Opaque, in every state, and the alpha this replaces is what both of its
+     bugs had in common.
+
+     A tenth of --destructive laid over whatever the row happens to be is a
+     colour that changes with the row. Two ways that showed:
+
+     The hover went muddy. The row's hover is --accent at half, a neutral grey
+     on the tr, and an alpha fill lets it through — measured, hovering moved
+     the cell by 5, 5, 5, the same on every channel, leaving its redness at 22
+     before and 22 after. Darker and no redder is what mud is. That step reads
+     correctly on every other cell in the row, because those cells are grey and
+     a grey darkening is what a grey cell is asking for.
+
+     And a run of them striped. The zebra band showed through too, so four
+     failing rows in a column alternated 252,229,230 / 250,227,228 and the red
+     field came out banded. Banding is positional — it says where you are in
+     the list. A failure is a property of the datum. A state modulated by
+     position is a state you cannot trust the colour of, and a column of errors
+     should read as one field rather than as more stripes.
+
+     So the cell states its whole colour instead of layering over what is
+     beneath. Nothing shows through, which is the point rather than a cost: the
+     row's band and the row's hover are both answered by the cell's own two
+     values, and a reader gets one red for "this went wrong" and one for "and
+     you are pointing at it".
+
+     18% against 10% is a step in saturation rather than in darkness — the cell
+     becomes more of what it already was, which is what a hover should say. */
+  border: 0.5px solid var(--cell-danger-rule);
+  background-color: var(--cell-danger-fill);
+
+  tr:hover & {
+    background-color: var(--cell-danger-fill-hover);
+  }
+}
+
+/* A cell reporting success, on the same terms. Every word of the note above
+   applies here and is not repeated: opaque in every state, so neither the
+   zebra band nor the row hover shows through, and two values so a hover is a
+   step in saturation rather than in darkness.
+   What earns a second utility rather than a parameter is only the hue. The
+   shape — fill, hover, rule, and the two selectors in table.tsx that keep a
+   neighbour's grey off it — is one design applied twice, and if a third tint
+   ever arrives it is worth generalising then rather than now. */
+@utility cell-success {
+  border: 0.5px solid var(--cell-success-rule);
+  background-color: var(--cell-success-fill);
+
+  tr:hover & {
+    background-color: var(--cell-success-fill-hover);
+  }
+}
+
+@utility scroll-fade-soft {
+  --scroll-fade-size: calc(var(--spacing) * 3);
+  --scroll-fade-mask: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.7) 0,
+    #000 var(--scroll-fade-t, 0px),
+    #000 calc(100% - var(--scroll-fade-b, 0px)),
+    rgb(0 0 0 / 0.7) 100%
+  );
+}
+
+/* A scroller with its thumb taken away, in whichever system is live.
+   The scroller still scrolls and still has its 6px; only the thumb stops
+   being painted.
+
+   One utility rather than the three classes this replaces. Those were
+   `scrollbar-thumb-transparent`, `scrollbar-track-transparent` and an arbitrary
+   `[scrollbar-color:transparent_transparent]`, and all three worked through
+   `scrollbar-color` — the property Chrome no longer reads, and worse, the one
+   whose presence makes Chrome abandon the pseudo-elements entirely. Left as
+   they were, a transcript would have grown a 15px standard scrollbar for
+   exactly as long as it was autoscrolling.
+
+   The Firefox branch is gated the same way the base rule is, so it cannot
+   poison the engine it is not for. */
+@utility scrollbar-transparent {
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+  }
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-color: transparent transparent;
+  }
+}
+
+@utility mask-edge-fade {
+  /* The fade has to be inset by the field's own inline padding. Text in a
+       field is clipped at the content edge, so a fade measured from the border
+       box lands entirely inside the padding — a region no glyph ever occupies,
+       which makes the mask a no-op. --edge-inset must track the field's px-*. */
+  --edge-inset: calc(var(--spacing) * 3);
+  --edge-fade: calc(var(--spacing) * 3);
+  /* --fade-start-a / --fade-end-a are alpha switches, set imperatively by
+       InputGroupInput: 0 fades that end, 1 leaves it opaque. They default to 1,
+       so with no JS there is no fade at all — a field that renders normally is a
+       better failure than one that dims text it is not hiding. */
+  mask-image: linear-gradient(
+    to right,
+    rgb(0 0 0 / var(--fade-start-a, 1)) 0,
+    rgb(0 0 0 / var(--fade-start-a, 1)) var(--edge-inset),
+    #000 calc(var(--edge-inset) + var(--edge-fade)),
+    #000 calc(100% - var(--edge-inset) - var(--edge-fade)),
+    rgb(0 0 0 / var(--fade-end-a, 1)) calc(100% - var(--edge-inset)),
+    rgb(0 0 0 / var(--fade-end-a, 1)) 100%
+  );
+}
+
+/* App rules */
+html {
+  background: var(--canvas);
+}
+
+body {
+  min-height: 100%;
+  background: var(--canvas);
+}
+
+::selection {
+  background: var(--selection);
+}

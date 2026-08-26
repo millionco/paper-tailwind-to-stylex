@@ -1,0 +1,64 @@
+/* Suisse Intl (Swiss Typefaces). A licensed face whose files travel with the
+   repository — Ben's call, made so every user of an app built on the set gets
+   the sans served rather than only the machines that could install it. The
+   cuts are from the licensed web kit; committing them is the distribution.
+   See docs/adr/0024-suisse-intl-as-the-sans.md.
+
+   Static cuts, not a variable file: that is what the web kit delivers, the
+   same departure from ADR 0004's one-variable-file rule that Berkeley's note
+   already records. So the set here is the weights the set actually sets —
+   400 and 500 with true italics, because emphasis is a real cut (ADR 0009),
+   and 600/700 so a semibold or a <strong> resolves to a drawn cut rather than
+   a synthesised one. Weights between fall to the nearest declared.
+
+   Imported from fonts.ts, not @import'd in the token layer: see
+   docs/adr/0001-geist-via-fontsource.md. font-display: swap matches what the
+   fontsource packages set themselves, so the swap behaviour does not change
+   with the face. */
+@font-face {
+    font-family: 'Suisse Intl';
+    src: url('./fonts/SuisseIntl-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Suisse Intl';
+    src: url('./fonts/SuisseIntl-RegularIt.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Suisse Intl';
+    src: url('./fonts/SuisseIntl-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Suisse Intl';
+    src: url('./fonts/SuisseIntl-MediumIt.woff2') format('woff2');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Suisse Intl';
+    src: url('./fonts/SuisseIntl-Semibold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Suisse Intl';
+    src: url('./fonts/SuisseIntl-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
