@@ -1,7 +1,7 @@
 # Paper Tailwind to StyleX
 
-Paste static JSX exported by Paper and get StyleX source that uses
-[`tailwind-stylex`](https://github.com/aidenybai/tailwind-stylex) tokens.
+Paste static JSX exported by Paper anywhere on the page and get StyleX source
+that uses [`tailwind-stylex`](https://github.com/aidenybai/tailwind-stylex) tokens.
 The generated source is copied to the clipboard automatically.
 
 ## Run locally

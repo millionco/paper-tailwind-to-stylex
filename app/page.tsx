@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Textarea } from "@/components/ui/textarea"
@@ -40,7 +40,7 @@ export default function Home() {
   const [copyState, setCopyState] = useState<CopyState>("idle")
   const result = useMemo(() => convertPaperToStyleX(source), [source])
 
-  const updateSource = async (value: string) => {
+  const updateSource = useCallback(async (value: string) => {
     setSource(value)
     if (!value.trim()) {
       setCopyState("idle")
@@ -48,7 +48,19 @@ export default function Home() {
     }
     const converted = convertPaperToStyleX(value)
     setCopyState((await copyToClipboard(converted.code)) ? "copied" : "failed")
-  }
+  }, [])
+
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      const value = event.clipboardData?.getData("text/plain") ?? ""
+      if (!value) return
+      event.preventDefault()
+      void updateSource(value)
+    }
+
+    document.addEventListener("paste", handlePaste)
+    return () => document.removeEventListener("paste", handlePaste)
+  }, [updateSource])
 
   return (
     <main className="min-h-screen bg-canvas px-4 pb-12 pt-24 sm:px-8">
@@ -58,9 +70,9 @@ export default function Home() {
             Convert Paper output
           </h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Paste static JSX from Paper. Standard values use tailwind-stylex
-            tokens, <em>arbitrary values stay exact</em>, and the generated
-            StyleX code is copied to your clipboard.
+            Paste static JSX from Paper anywhere on this page. Standard values
+            use tailwind-stylex tokens, <em>arbitrary values stay exact</em>,
+            and the generated StyleX code is copied to your clipboard.
           </p>
         </header>
 
