@@ -26,6 +26,15 @@ const copyToClipboard = async (value: string) => {
   }
 }
 
+const conversionSummary = (classes: number, inlineStyles: number) => {
+  const parts: string[] = []
+  if (classes > 0) parts.push(`${classes} class${classes === 1 ? "" : "es"}`)
+  if (inlineStyles > 0) {
+    parts.push(`${inlineStyles} inline style${inlineStyles === 1 ? "" : "s"}`)
+  }
+  return parts.length > 0 ? `Converted ${parts.join(" and ")}.` : "No static styles found."
+}
+
 export default function Home() {
   const [source, setSource] = useState("")
   const [copyState, setCopyState] = useState<CopyState>("idle")
@@ -66,8 +75,8 @@ export default function Home() {
             className="min-h-80 resize-y bg-background font-mono text-xs leading-relaxed"
           />
           <FieldDescription>
-            Static className strings convert automatically. Existing inline
-            styles stay in place.
+            Static className strings and inline style objects convert
+            automatically. Dynamic style expressions stay in place.
           </FieldDescription>
         </Field>
 
@@ -105,16 +114,17 @@ export default function Home() {
             )}
           </div>
 
-          {result.unsupported.length > 0 ? (
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {result.unsupported.length} unsupported class
-              {result.unsupported.length === 1 ? "" : "es"} remain in
-              className.
-            </p>
-          ) : source ? (
+          {source ? (
             <p className="text-xs text-muted-foreground">
-              Converted {result.converted} class
-              {result.converted === 1 ? "" : "es"}.
+              {conversionSummary(
+                result.convertedClasses,
+                result.convertedInlineStyles,
+              )}
+              {result.unsupported.length > 0
+                ? ` ${result.unsupported.length} unsupported class${
+                    result.unsupported.length === 1 ? "" : "es"
+                  } remain in className.`
+                : ""}
             </p>
           ) : null}
         </section>

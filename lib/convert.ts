@@ -6,6 +6,8 @@ type StyleRule = Record<string, StyleValue | ConditionalValue>
 export type ConversionResult = {
   code: string
   converted: number
+  convertedClasses: number
+  convertedInlineStyles: number
   unsupported: string[]
 }
 
@@ -451,14 +453,128 @@ const serializeObject = (
 }
 
 const staticClassNamePattern = /className=(['"])([\s\S]*?)\1/g
+const staticStylePattern = /style=\{\{([\s\S]*?)\}\}/g
+
+const splitTopLevel = (source: string, delimiter: string) => {
+  const parts: string[] = []
+  let start = 0
+  let depth = 0
+  let quote = ""
+  let escaped = false
+
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index]
+    if (quote) {
+      if (escaped) {
+        escaped = false
+      } else if (character === "\\") {
+        escaped = true
+      } else if (character === quote) {
+        quote = ""
+      }
+      continue
+    }
+    if (character === "'" || character === '"' || character === "`") {
+      quote = character
+      continue
+    }
+    if (character === "(" || character === "[" || character === "{") depth += 1
+    if (character === ")" || character === "]" || character === "}") depth -= 1
+    if (character === delimiter && depth === 0) {
+      parts.push(source.slice(start, index))
+      start = index + 1
+    }
+  }
+
+  if (quote || depth !== 0) return null
+  parts.push(source.slice(start))
+  return parts
+}
+
+const decodeQuotedString = (source: string) => {
+  const quote = source[0]
+  if ((quote !== "'" && quote !== '"') || source.at(-1) !== quote) return null
+
+  const escapes: Record<string, string> = {
+    "0": "\0", b: "\b", f: "\f", n: "\n", r: "\r", t: "\t", v: "\v",
+  }
+  let result = ""
+  for (let index = 1; index < source.length - 1; index += 1) {
+    const character = source[index]
+    if (character !== "\\") {
+      result += character
+      continue
+    }
+
+    index += 1
+    if (index >= source.length - 1) return null
+    const escaped = source[index]
+    if (escaped === "\n") continue
+    if (escaped === "\r" && source[index + 1] === "\n") {
+      index += 1
+      continue
+    }
+    if (escaped === "x" || escaped === "u") {
+      const length = escaped === "x" ? 2 : 4
+      const hex = source.slice(index + 1, index + 1 + length)
+      if (!new RegExp(`^[0-9a-fA-F]{${length}}$`).test(hex)) return null
+      result += String.fromCharCode(Number.parseInt(hex, 16))
+      index += length
+      continue
+    }
+    result += escapes[escaped] ?? escaped
+  }
+  return result
+}
+
+const parseInlineStyleValue = (source: string): StyleValue | null => {
+  const value = source.trim()
+  if (value.startsWith("'") || value.startsWith('"')) {
+    return decodeQuotedString(value)
+  }
+  if (/^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/.test(value)) {
+    return Number(value)
+  }
+  return null
+}
+
+const parseInlineStyleObject = (source: string): StyleRule | null => {
+  const entries = splitTopLevel(source, ",")
+  if (entries === null) return null
+  const rule: StyleRule = {}
+
+  for (const rawEntry of entries) {
+    const entry = rawEntry.trim()
+    if (!entry) continue
+    const pair = splitTopLevel(entry, ":")
+    if (pair === null || pair.length !== 2) return null
+
+    const rawProperty = pair[0].trim()
+    const decodedProperty = rawProperty.startsWith("'") || rawProperty.startsWith('"')
+      ? decodeQuotedString(rawProperty)
+      : /^[A-Za-z_$][\w$]*$/.test(rawProperty)
+        ? rawProperty
+        : null
+    const value = parseInlineStyleValue(pair[1])
+    if (decodedProperty === null || value === null) return null
+
+    const property = decodedProperty.startsWith("--")
+      ? decodedProperty
+      : toCamelCase(decodedProperty)
+    rule[property] = value
+  }
+
+  return Object.keys(rule).length > 0 ? rule : null
+}
 
 export const convertPaperToStyleX = (source: string): ConversionResult => {
   const rules: Record<string, StyleRule> = {}
   const unsupported = new Set<string>()
-  let converted = 0
+  let convertedClasses = 0
+  let convertedInlineStyles = 0
   let index = 0
 
-  const transformed = source.replace(
+  let transformed = source.replace(
     staticClassNamePattern,
     (_match, quote: string, classNames: string) => {
       const ruleName = `node${index}`
@@ -477,7 +593,7 @@ export const convertPaperToStyleX = (source: string): ConversionResult => {
           continue
         }
         mergeDeclarations(rule, declarations, condition)
-        converted += 1
+        convertedClasses += 1
       }
 
       rules[ruleName] = rule
@@ -488,7 +604,41 @@ export const convertPaperToStyleX = (source: string): ConversionResult => {
     },
   )
 
-  if (index === 0) return { code: source, converted: 0, unsupported: [] }
+  transformed = transformed.replace(
+    staticStylePattern,
+    (match: string, objectSource: string, offset: number, fullSource: string) => {
+      const declarations = parseInlineStyleObject(objectSource)
+      if (declarations === null) return match
+
+      const tagStart = fullSource.lastIndexOf("<", offset)
+      const tagEnd = fullSource.indexOf(">", offset + match.length)
+      if (tagStart === -1 || tagEnd === -1) return match
+      const openingTag = fullSource.slice(tagStart, tagEnd + 1)
+      const existingRule = openingTag.match(
+        /stylex\.props\(styles\.(node\d+)\)/,
+      )?.[1]
+      const ruleName = existingRule ?? `node${index}`
+      if (existingRule) {
+        mergeDeclarations(rules[ruleName], declarations, null)
+      } else {
+        rules[ruleName] = declarations
+        index += 1
+      }
+      convertedInlineStyles += Object.keys(declarations).length
+
+      return existingRule ? "" : `{...stylex.props(styles.${ruleName})}`
+    },
+  )
+
+  if (index === 0) {
+    return {
+      code: source,
+      converted: 0,
+      convertedClasses: 0,
+      convertedInlineStyles: 0,
+      unsupported: [],
+    }
+  }
 
   const groups = new Set<string>()
   const stylesSource = serializeObject(rules, 0, groups)
@@ -507,7 +657,9 @@ export const convertPaperToStyleX = (source: string): ConversionResult => {
 
   return {
     code: `import * as stylex from "@stylexjs/stylex";\n${tokenImport}\n${body}`,
-    converted,
+    converted: convertedClasses + convertedInlineStyles,
+    convertedClasses,
+    convertedInlineStyles,
     unsupported: unsupportedList,
   }
 }

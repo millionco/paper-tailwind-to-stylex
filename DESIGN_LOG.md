@@ -7,6 +7,7 @@ entry remains with a `reverted` status.
 ## Log
 
 - 2026-08-26 · pending · Create the Paper Tailwind to StyleX converter with Million UI.
+- 2026-08-26 · pending · Convert Paper inline style objects to StyleX.
 
 ## Backlog
 

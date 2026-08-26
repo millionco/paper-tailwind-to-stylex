@@ -22,7 +22,8 @@ registry during builds or deployments.
 - Standard Tailwind values use exports from
   `tailwind-stylex/tokens.stylex`.
 - Paper fractional spacing and arbitrary values stay exact.
-- Existing inline `style` properties stay in place.
+- Static inline `style` objects become StyleX declarations.
+- Dynamic inline style expressions stay in place.
 - Unsupported utilities stay in `className` and appear in the result summary.
 
 Generated code expects `@stylexjs/stylex` and `tailwind-stylex` in the target
@@ -37,8 +38,8 @@ npm run lint
 npm run build
 ```
 
-The fixture tests cover token conversion, exact arbitrary values, unsupported
-class preservation, and source without static class names.
+The fixture tests cover token conversion, exact arbitrary values, static inline
+styles, unsupported class preservation, and source without static styles.
 
 ## License-dependent setup
 
